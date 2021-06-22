@@ -47,7 +47,7 @@ You can download darknet weights from my google drive:
 ![Detection_one_side](./asset/Detection_one_side.gif)
 
 
-![detection_both_side](./asset/detection_both_side.avi)
+![detection_both_side](./asset/detection_both_side.gif)
 
 
 ## Data Preparation from KITTI
