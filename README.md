@@ -43,9 +43,8 @@ You can download darknet weights from my google drive:
     2. $ python test_both_side_detection.py --split=sample --folder=sampledata
 
 #### Demo Video 
+![Detection_one_side](./asset/Detection_one_side.gif)
 
-[//]: # (Image References)
-[Detection_one_side]: ./asset/Detection_one_side.gif
 
 ## Data Preparation from KITTI
 
