@@ -42,11 +42,10 @@ You can download darknet weights from my google drive:
     1. $ python test_detection.py --split=sample --folder=sampledata  
     2. $ python test_both_side_detection.py --split=sample --folder=sampledata
 
-#### Demo Video [[Click to Play](https://www.youtube.com/watch?v=JzywsbuXFOg)]
-[![complex-yolov3_gif][complex-yolov3_gif]](https://youtu.be/JzywsbuXFOg)
+#### Demo Video 
 
 [//]: # (Image References)
-[complex-yolov3_gif]: ./assets/complex-yolov3.gif
+[Detection_one_side]: ./asset/Detection_one_side.gif
 
 ## Data Preparation from KITTI
 
