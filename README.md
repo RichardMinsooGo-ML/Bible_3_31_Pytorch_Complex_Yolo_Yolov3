@@ -22,13 +22,13 @@ wget -P model_data https://github.com/AlexeyAB/darknet/releases/download/darknet
 
 Or you can download darknet weights from my google drive:
 
-'Put Google Drive Link'
+https://drive.google.com/drive/folders/1w4KNO2jIlkyzQgUkkcZ18zrC8A1Nqvwa?usp=sharing
 
 ## Pretrained weights
 
-Or you can download darknet weights from my google drive:
+You can download darknet weights from my google drive:
 
-https://drive.google.com/drive/folders/1w4KNO2jIlkyzQgUkkcZ18zrC8A1Nqvwa?usp=sharing
+"Update Google Drive Link"
 
 
 ## Quick start
