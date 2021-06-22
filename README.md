@@ -1,9 +1,11 @@
 # Pytorch Complex Yolo - Yolov3
+
+
 Complete but Unofficial PyTorch Implementation of [Complex-YOLO: Real-time 3D Object Detection on Point Clouds](https://arxiv.org/pdf/1803.06199.pdf) with YoloV3
 Code was tested with following specs:
 - Code was tested on Windows 10
 
-## Installation
+## 1. Installation
 First, clone or download this GitHub repository.
 Install requirements and download from official darknet weights:
 ```
@@ -24,19 +26,19 @@ Or you can download darknet weights from my google drive:
 
 https://drive.google.com/drive/folders/1w4KNO2jIlkyzQgUkkcZ18zrC8A1Nqvwa?usp=sharing
 
-## Pretrained weights
+## 2. Pretrained weights
 
 You can download darknet weights from my google drive:
 
 "Update Google Drive Link"
 
 
-## Quick start
+## 3. Quick start
 
-#### Download pretrained weights [[yolov3](https://drive.google.com/file/d/1e7PCqeV3tS68KtBIUbX34Uhy81XnsYZV/view), [tiny-yolov3](https://drive.google.com/file/d/19Qvpq2kQyjQ5uhQgi-wcWmSqFy4fcvny/view)]
-    $ cd checkpoints/
-    $ python download_weights.py
-    
+#### Download pretrained weights 
+
+
+
 #### Test [without downloading dataset] 
 
     1. $ python test_detection.py --split=sample --folder=sampledata  
