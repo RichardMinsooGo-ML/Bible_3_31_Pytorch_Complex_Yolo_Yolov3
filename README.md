@@ -121,7 +121,7 @@ So, I recommend you to download dataset from my google drive.
 
 https://drive.google.com/file/d/12Fbtxo2F8Nn9dHDV9UPnovVaCf-Uc89R/view?usp=sharing
 
-### 5.1 Dataset folder structure shall
+### 5.1 Dataset folder structure shall be
 
 ```
 ${ROOT}
