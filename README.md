@@ -30,7 +30,11 @@ https://drive.google.com/drive/folders/1w4KNO2jIlkyzQgUkkcZ18zrC8A1Nqvwa?usp=sha
 
 You can download darknet weights from my google drive:
 
-"Update Google Drive Link"
+- [x] Complex Yolo v3:
+https://drive.google.com/file/d/1jpaDXJcBLf4s3JBYrmapkTQ9OCeGmoQI/view?usp=sharing
+
+- [x] Complex Yolo v3 - tiny:
+https://drive.google.com/file/d/1Mukg7aZ3C5ZWFhkS5r1wmL1tgWXsTxS6/view?usp=sharing
 
 
 ## 3. Quick start
@@ -147,11 +151,10 @@ ${ROOT}
 ├── README.md 
 ├── train.py
 ├── checkpoints/ 
-│    ├── yolo_v3_coco
-│    ├── yolo_v3_coco
-│    ├── yolo_v3_coco
-│    ├── yolo_v3_coco
-│    └── yolo_v3_fashion_mnist_tiny
+│    ├── Complex_yolo_yolo_v3.pth
+│    ├── Complex_yolo_yolo_v3_tiny.pth
+│    ├── yolov3.weights
+│    └── yolov3-tiny.weights
 ├── config/ 
 │    ├── complex_yolov3.cfg
 │    ├── complex_yolov3_tiny.cfg
