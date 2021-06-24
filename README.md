@@ -68,12 +68,27 @@ ${ROOT}
 ```
 
 
-### Test [without downloading dataset] 
+### 3.3 Test [without downloading dataset] 
 
-       $ python test_detection.py --split=sample --folder=sampledata  
-       $ python test_both_side_detection.py --split=sample --folder=sampledata
+- [x] Detection test for `Yolo v3` with `detect_1` folder.
 
-### Demo Video 
+       $ python detection.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
+
+- [x] Detection test for `Yolo v3-tiny` with `detect_1` folder.
+
+       $ python detection.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8  
+       
+- [x] Both side detection test for `Yolo v3` with `detect_1` folder.
+
+       $ python detection_both_side.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
+       
+- [x] Both side detection test for `Yolo v3-tiny` with `detect_1` folder.
+
+       $ python detection_both_side.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+
+      
+       
+### 3.4 Demo Video 
 
 ![Detection_one_side](./asset/Detection_one_side.gif)
 
