@@ -98,7 +98,6 @@ ${ROOT}
 ![detection_both_side](./asset/detection_both_side.gif)
 
 
-
 ## 4. Data Preparation from KITTI
 
 You can see `sampledata` folder in `dataset/kitti/sampledata` directory which can be used for testing this project without downloading KITTI dataset. However, if you want to train the model by yourself and check the mAP in validation set just follow the steps below.
@@ -109,13 +108,59 @@ You can see `sampledata` folder in `dataset/kitti/sampledata` directory which ca
 3. Velodyne point clouds (29 GB)
 4. Left color images of object data set (12 GB)
 
-Now you have to manage dataset directory structure. Place your dataset into `data` folder. Please make sure that you have the dataset directory structure as follows. 
+Now you have to manage dataset directory structure. Place your dataset into `dataset` folder. Please make sure that you have the dataset directory structure as follows. 
 
 
-The `train/valid` split of training dataset as well as `sample` and `test` dataset ids are in `data/kitti/ImageSets` directory. From training set of 7481 images, 6000 images are used for training and remaining 1481 images are used for validation. The mAP results reported in this project are evaluated into this valid set with custom mAP evaluation script with 0.5 iou for each object class. 
+The `train/valid` split of training dataset as well as `sample` and `test` dataset ids are in `dataset/kitti/ImageSets` directory. From training set of 7481 images, 6000 images are used for training and remaining 1481 images are used for validation. The mAP results reported in this project are evaluated into this valid set with custom mAP evaluation script with 0.5 iou for each object class. 
 
-#### Verify your download
-    $ python check_dataset.py
+
+## 5. Data Preparation from my google drive
+
+If you download the dataset from `the KITTI Vision Benchmark Suite`, it is difficult to build detect dataset.
+So, I recommend you to download dataset from my google drive.
+
+https://drive.google.com/file/d/12Fbtxo2F8Nn9dHDV9UPnovVaCf-Uc89R/view?usp=sharing
+
+### 5.1 Dataset folder structure shall
+
+```
+${ROOT}
+├── dataset/
+│    ├── classes.names
+│    └── kitti/
+│          ├── classes_names.txt
+│          ├── detect_1/    <-- for detection test
+│          │    ├── calib/
+│          │    ├── image_2/
+│          │    └── velodyne/
+│          ├── detect_2/    <-- for detection test
+│          │    ├── calib/
+│          │    ├── image_2/
+│          │    └── velodyne/
+│          ├── ImageSets/ 
+│          │    ├── detect_1.txt
+│          │    ├── detect_2.txt
+│          │    ├── sample.txt
+│          │    ├── test.txt
+│          │    ├── train.txt
+│          │    ├── val.txt
+│          │    └── valid.txt
+│          ├── sampledata/ 
+│          │    ├── image_2/
+│          │    ├── calib/
+│          │    ├── label_2/
+│          │    └── velodyne/
+│          ├── training/    <-- 7481 train data
+│          │    ├── image_2/  <-- for visualization
+│          │    ├── calib/
+│          │    ├── label_2/
+│          │    └── velodyne/
+│          └── testing/     <-- 7580 test data
+│                ├── image_2/  <-- for visualization
+│                ├── calib/
+│                └── velodyne/
+```
+
 
 ## Train
     $ train.py [-h] [--epochs EPOCHS] [--batch_size BATCH_SIZE]
