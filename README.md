@@ -41,7 +41,9 @@ https://drive.google.com/file/d/1Mukg7aZ3C5ZWFhkS5r1wmL1tgWXsTxS6/view?usp=shari
 
 ### 3.1. Download pretrained weights 
 
-### 3.2. Dataset shall contains `detect_1` folders and contents, `sampledata` *.txt files.
+### 3.2. Dataset shall contains shall contains belows.
+- [x] `detect_1` folder shall contain folders and contents.
+- [x] `ImageSets` folder shall contain *.txt files.
 
 ```
 ${ROOT}
