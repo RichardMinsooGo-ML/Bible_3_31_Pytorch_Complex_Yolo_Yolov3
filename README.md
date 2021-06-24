@@ -89,15 +89,17 @@ ${ROOT}
       
        
 ### 3.4 Demo Video 
+- [x] One side detection demo.
 
 ![Detection_one_side](./asset/Detection_one_side.gif)
 
+- [x] Both side detection demo.
 
 ![detection_both_side](./asset/detection_both_side.gif)
 
 
 
-## Data Preparation from KITTI
+## 4. Data Preparation from KITTI
 
 You can see `sampledata` folder in `dataset/kitti/sampledata` directory which can be used for testing this project without downloading KITTI dataset. However, if you want to train the model by yourself and check the mAP in validation set just follow the steps below.
 
