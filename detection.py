@@ -1,66 +1,92 @@
+# python detection.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+# python detection.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
+
 import numpy as np
 
 import os, sys, time, datetime, argparse
-os.environ["KMP_DUPLICATE_LIB_OK"]="True"
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+import torch
+from data_process.kitti_yolo_dataset import KittiYOLODataset
+from utils.utils import *
+from models.models import *
+
+import data_process.config as cnf
 import math
 import cv2
-import torch
-
-from models.models import *
-from utils.utils import *
 import torch.utils.data as torch_data
-
 from data_process import kitti_utils, kitti_bev_utils
-
-from data_process.kitti_yolo_dataset import KittiYOLODataset
-import data_process.config as cnf
-
 # import utils.mayavi_viewer as mview
 from utils.mayavi_viewer import show_image_with_boxes, predictions_to_kitti_format
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--pretrained_path", type=str, default="checkpoints/tiny-yolov3_ckpt_epoch-220.pth", help="path to weights file")
-    parser.add_argument("--model_def",  type=str,   default="config/complex_yolov3_tiny.cfg", help="path to model definition file")
+    # parser.add_argument("--model_def"   , type=str  , default="config/complex_tiny_yolov3.cfg", help="path to model definition file")
+    # parser.add_argument("--pretrained_path", type=str  , default="checkpoints/Complex_yolo_yolo_v3_tiny.pth", help="path to weights file")
     
-    parser.add_argument("--class_path", type=str,   default="./dataset/classes.names", help="path to class label file")
+    parser.add_argument("--model_def"   , type=str  , default="config/complex_yolov3.cfg", help="path to model definition file")
+    parser.add_argument("--pretrained_path", type=str  , default="checkpoints/Complex_yolo_yolo_v3.pth", help="path to weights file")
+        
+    parser.add_argument("--class_path"  , type=str  , default="dataset/classes.names", help="path to class label file")
+    parser.add_argument("--batch_size"  , type=int  , default=2, help="size of each image batch")
     parser.add_argument("--conf_thres", type=float, default=0.5, help="object confidence threshold")
     parser.add_argument("--nms_thres",  type=float, default=0.5, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--img_size",   type=int,   default=cnf.BEV_WIDTH, help="size of each image dimension")
     parser.add_argument("--save_video", type=bool,  default=True, help="Set this flag to True if you want to record video")
+    
     # parser.add_argument("--split",      type=str,   default="valid", help="text file having image lists in dataset")
     # parser.add_argument("--folder",     type=str,   default="training", help="directory name that you downloaded all dataset")
     
     parser.add_argument("--split",      type=str,   default="detect_1", help="text file having image lists in dataset")
     parser.add_argument("--folder",     type=str,   default="detect_1", help="directory name that you downloaded all dataset")
+    
+    # parser.add_argument("--split",      type=str,   default="detect_2", help="text file having image lists in dataset")
+    # parser.add_argument("--folder",     type=str,   default="detect_2", help="directory name that you downloaded all dataset")
+    
     configs = parser.parse_args()
     print(configs)
-
-    # Set up model
-    model = Darknet(configs.model_def, img_size=configs.img_size)
-    classes = load_classes(configs.class_path)
-    # model.print_network()
-    print("\n\n" + "-*=" * 30 + "\n\n")
-    assert os.path.isfile(configs.pretrained_path), "No file at {}".format(configs.pretrained_path)
+    
+    ############## Hardware configurations #############################    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Initiate model
+    model = Darknet(configs.model_def, img_size=configs.img_size)
+    
+    # Get data configuration
+    classes = load_classes(configs.class_path)
+    
+    # model.print_network()
+    print("\n" + "___m__@@__m___" * 10 + "\n")
+    
+    print(configs.pretrained_path)    
+    assert os.path.isfile(configs.pretrained_path), "No file at {}".format(configs.pretrained_path)
+    
     model = model.to(device)
+    
     # Load checkpoint weights
-    model.load_state_dict(torch.load(configs.pretrained_path))
+    if configs.pretrained_path:
+        if configs.pretrained_path.endswith(".pth"):
+            model.load_state_dict(torch.load(configs.pretrained_path))
+            print("Trained pytorch weight loaded!")
+    
+    # model.load_state_dict(torch.load(configs.pretrained_path))
+    
     # Eval mode
     model.eval()
     
+    # Create dataloader
     dataset = KittiYOLODataset(cnf.root_dir, split=configs.split, mode='TEST', folder=configs.folder, data_aug=False)
     
-    data_loader = torch_data.DataLoader(dataset, 1, shuffle=False)
+    dataloader = torch_data.DataLoader(dataset, 1, shuffle=False)
 
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     if configs.save_video:
-        out = cv2.VideoWriter('Detection_out.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 5, (608, 791))
+        out = cv2.VideoWriter('pred_IMAGES/detection_out.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 5, (608, 791))
 
     start_time = time.time()
-    for batch_idx, (img_paths, imgs_bev) in enumerate(data_loader):
+    for batch_idx, (img_paths, imgs_bev) in enumerate(dataloader):
         
         # Configure bev image
         input_imgs = Variable(imgs_bev.type(Tensor))
@@ -119,8 +145,12 @@ if __name__ == "__main__":
         if configs.save_video:
             out.write(out_img)
         
-        if cv2.waitKey(0) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == 27:
             break
 
     if configs.save_video:
         out.release()
+            
+if __name__ == '__main__':
+    main()
+    

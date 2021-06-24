@@ -1,19 +1,22 @@
-
-import os, sys, time, datetime, argparse
-os.environ["KMP_DUPLICATE_LIB_OK"]="True"
+# python eval_mAP.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+# python eval_mAP.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
 
 import numpy as np
+
+import os, sys, time, datetime, argparse
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 import torch
+from data_process.kitti_yolo_dataset import KittiYOLODataset
+from utils.utils import *
+from models.models import *
+
+import data_process.config as cnf
 import tqdm
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import torch.optim as optim
 
-import data_process.config as cnf
-from data_process.kitti_yolo_dataset import KittiYOLODataset
-
-from models.models import *
-from utils.utils import *
 
 def evaluate_mAP(model, configs, batch_size):
     # switch to evaluate mode
@@ -21,6 +24,7 @@ def evaluate_mAP(model, configs, batch_size):
 
     # Get dataloader
     split='valid'
+    # Create dataloader
     dataset = KittiYOLODataset(cnf.root_dir, split=split, mode='EVAL', folder='training', data_aug=False)
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn
@@ -54,50 +58,52 @@ def evaluate_mAP(model, configs, batch_size):
 
     return precision, recall, AP, f1, ap_class
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size"  , type=int  , default=4, help="size of each image batch")
+    
+    # parser.add_argument("--model_def"   , type=str  , default="config/complex_tiny_yolov3.cfg", help="path to model definition file")
+    # parser.add_argument("--pretrained_path", type=str  , default="checkpoints/Complex_yolo_yolo_v3_tiny.pth", help="path to weights file")
     
     parser.add_argument("--model_def"   , type=str  , default="config/complex_yolov3.cfg", help="path to model definition file")
-    # parser.add_argument("--model_def"   , type=str  , default="config/complex_tiny_yolov3.cfg", help="path to model definition file")
-    # parser.add_argument("--weights_path", type=str  , default="checkpoints/yolov3_ckpt_epoch-298.pth", help="path to weights file")
-    parser.add_argument("--weights_path", type=str  , default="checkpoints/Model_complexer_yolo_V3.pth", help="path to weights file")
-    
-    # parser.add_argument("--weights_path", type=str  , default="checkpoints/tiny-yolov3_ckpt_epoch-220.pth", help="path to weights file")
-    
+    parser.add_argument("--pretrained_path", type=str  , default="checkpoints/Complex_yolo_yolo_v3.pth", help="path to weights file")
+        
     parser.add_argument("--class_path"  , type=str  , default="dataset/classes.names", help="path to class label file")
+    parser.add_argument("--batch_size"  , type=int  , default=2, help="size of each image batch")
     parser.add_argument("--iou_thres"   , type=float, default=0.5, help="iou threshold required to qualify as detected")
-    parser.add_argument("--conf_thres"  , type=float, default=0.5, help="object confidence threshold")
-    parser.add_argument("--nms_thres"   , type=float, default=0.5, help="iou thresshold for non-maximum suppression")
-    parser.add_argument("--img_size"    , type=int  , default=cnf.BEV_WIDTH, help="size of each image dimension")
+    parser.add_argument("--conf_thres", type=float, default=0.5, help="object confidence threshold")
+    parser.add_argument("--nms_thres",  type=float, default=0.5, help="iou thresshold for non-maximum suppression")
+    parser.add_argument("--img_size",   type=int,   default=cnf.BEV_WIDTH, help="size of each image dimension")
     configs = parser.parse_args()
     print(configs)
-
-
-    #data_config = parse_data_config(opt.data_config)
-    #class_names = load_classes(data_config["names"])
-    class_names = load_classes(configs.class_path)
+    
+    ############## Hardware configurations #############################    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Initiate model
-    model = Darknet(configs.model_def) # .to(device)
+    model = Darknet(configs.model_def, img_size=configs.img_size)
+    
+    # Get data configuration
+    classes = load_classes(configs.class_path)
     
     # model.print_network()
     print("\n" + "___m__@@__m___" * 10 + "\n")
     
-    print(configs.weights_path)
+    print(configs.pretrained_path)    
+    assert os.path.isfile(configs.pretrained_path), "No file at {}".format(configs.pretrained_path)
     
-    assert os.path.isfile(configs.weights_path), "No file at {}".format(configs.weights_path)
+    model = model.to(device)
     
     # Load checkpoint weights
-    model.load_state_dict(torch.load(configs.weights_path))
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # configs.device = torch.device("cpu" if configs.no_cuda else "cuda:{}".format(configs.gpu_idx))
-    model = model.to(device = device)
+    if configs.pretrained_path:
+        if configs.pretrained_path.endswith(".pth"):
+            model.load_state_dict(torch.load(configs.pretrained_path))
+            print("Trained pytorch weight loaded!")
     
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # model = model.to(device)
+    # model.load_state_dict(torch.load(configs.pretrained_path))
     
+    # Eval mode
     model.eval()
+    
 
     print("\nStart computing mAP...\n")
     precision, recall, AP, f1, ap_class = evaluate_mAP(model, configs, batch_size = configs.batch_size)
@@ -105,6 +111,10 @@ if __name__ == "__main__":
     print("\nDone computing mAP...\n")
     for idx, cls in enumerate(ap_class):
         print("\t>>>\t Class {} ({}): precision = {:.4f}, recall = {:.4f}, AP = {:.4f}, f1: {:.4f}".format(cls, \
-                class_names[cls][:3], precision[idx], recall[idx], AP[idx], f1[idx]))
+                classes[cls][:3], precision[idx], recall[idx], AP[idx], f1[idx]))
 
     print("\nmAP: {:.4f}\n".format(AP.mean()))
+            
+if __name__ == '__main__':
+    main()
+    
