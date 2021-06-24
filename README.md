@@ -39,16 +39,39 @@ https://drive.google.com/file/d/1Mukg7aZ3C5ZWFhkS5r1wmL1tgWXsTxS6/view?usp=shari
 
 ## 3. Quick start
 
-#### Download pretrained weights 
+### 3.1. Download pretrained weights 
+
+### 3.2. Dataset shall contains `detect_1` folders and contents, `sampledata` *.txt files.
+
+```
+${ROOT}
+├── dataset/
+│    ├── classes.names
+│    └── kitti/
+│          ├── classes_names.txt
+│          ├── detect_1/    <-- for detection test
+│          │    ├── calib/
+│          │    ├── image_2/
+│          │    └── velodyne/
+│          ├── ImageSets/ 
+│          │    ├── detect_1.txt
+│          │    ├── detect_2.txt
+│          │    ├── sample.txt
+│          ├── sampledata/ 
+│          │    ├── image_2/
+│          │    ├── calib/
+│          │    ├── label_2/
+│          │    └── velodyne/
+
+```
 
 
-
-#### Test [without downloading dataset] 
+### Test [without downloading dataset] 
 
        $ python test_detection.py --split=sample --folder=sampledata  
        $ python test_both_side_detection.py --split=sample --folder=sampledata
 
-#### Demo Video 
+### Demo Video 
 
 ![Detection_one_side](./asset/Detection_one_side.gif)
 
