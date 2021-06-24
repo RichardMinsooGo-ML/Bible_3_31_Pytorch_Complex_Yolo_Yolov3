@@ -218,11 +218,6 @@ mAP (min. 50 IoU)
 | Complex-YOLO-v3         | 97.89   |82.71       |90.12    |90.24    |
 | Complex-Tiny-YOLO-v3    | 95.91   |49.29       |78.75    |74.65    |
 
-#### Results 
-<p align="center"><img src="assets/result1.jpg" width="1246"\></p>
-<p align="center"><img src="assets/result2.jpg" width="1246"\></p>
-<p align="center"><img src="assets/result3.jpg" width="1246"\></p>
-
 ## Credit
 
 1. Complex-YOLO: https://arxiv.org/pdf/1803.06199.pdf
