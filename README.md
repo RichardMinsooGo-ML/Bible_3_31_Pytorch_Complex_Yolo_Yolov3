@@ -162,14 +162,24 @@ ${ROOT}
 ```
 
 
-## Train
-    $ train.py [-h] [--epochs EPOCHS] [--batch_size BATCH_SIZE]
-                [--gradient_accumulations GRADIENT_ACCUMULATIONS]
-                [--model_def MODEL_DEF] 
-                [--pretrained_weights PRETRAINED_WEIGHTS] 
-                [--n_cpu N_CPU] [--img_size IMG_SIZE]
-                [--evaluation_interval EVALUATION_INTERVAL]
-                [--multiscale_training MULTISCALE_TRAINING]
+## 6.Train
+
+- [x] `Complex Yolo v3` training from `pretrained weight`.
+
+    $ python train.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --save_path checkpoints/Complex_yolo_yolo_v3.pth
+    
+- [x] `Complex Yolo v3` training from `darknet weight`.
+
+    $ python train.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/yolov3.weights --save_path checkpoints/Complex_yolo_yolo_v3.pth
+    
+- [x] `Complex Yolo v3-tiny` training from `pretrained weight`.
+
+    $ python train.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --save_path checkpoints/Complex_yolo_yolo_v3_tiny.pth
+    
+- [x] `Complex Yolo v3-tiny` training from `darknet weight`.
+
+    $ python train.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/yolov3-tiny.weights --save_path checkpoints/Complex_yolo_yolo_v3_tiny.pth
+    
 
 --Training log example--
 
@@ -197,9 +207,6 @@ ${ROOT}
     Total loss 16.255769729614258
     ---- ETA 0:18:27.490254
 
-## Test
-    $ python test_detection.py
-    $ python test_both_side_detection.py
 
 ## Evaluation
     $ python eval_mAP.py 
