@@ -212,8 +212,9 @@ ${ROOT}
 ## 7. Evaluation
 
 - [x] `Complex Yolo v3` evaluation.
-    $ python eval_mAP.py 
-    $ python eval_mAP.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
+
+       $ python eval_mAP.py 
+       $ python eval_mAP.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
 
 ```
     Detecting objects: 100%|███████████████████████████████████████████████████████████████████████| 741/741 [02:44<00:00,  4.51it/s]
@@ -229,7 +230,8 @@ ${ROOT}
 ``` 
     
 - [x] `Complex Yolo v3 - tiny` evaluation.
-    $ python eval_mAP.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+
+       $ python eval_mAP.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
     
 ```
     Detecting objects: 100%|████████████████████████████████████████████████████████████████████████| 186/186 [01:36<00:00,  1.93it/s]
