@@ -162,7 +162,7 @@ ${ROOT}
 ```
 
 
-## 6.Train
+## 6. Train
 
 - [x] `Complex Yolo v3` training from `pretrained weight`.
 
@@ -209,15 +209,28 @@ ${ROOT}
     100%|█████████████████████████████████████
 
 
-## Evaluation
+## 7. Evaluation
+
+- [x] `Complex Yolo v3` evaluation.
     $ python eval_mAP.py 
+    $ python eval_mAP.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
+    
+    Detecting objects: 100%|███████████████████████████████████████████████████████████████████████| 741/741 [02:44<00:00,  4.51it/s]
+    Computing AP: 100%|███████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 107.44it/s]
 
-mAP (min. 50 IoU)
+    Done computing mAP...
 
-| Model/Class             | Car     | Pedestrian | Cyclist | Average |
-| ----------------------- |:--------|:-----------|:--------|:--------|
-| Complex-YOLO-v3         | 97.89   |82.71       |90.12    |90.24    |
-| Complex-Tiny-YOLO-v3    | 95.91   |49.29       |78.75    |74.65    |
+        >>>      Class 0 (Car): precision = 0.9052, recall = 0.9866, AP = 0.9790, f1: 0.9441
+        >>>      Class 1 (Ped): precision = 0.6389, recall = 0.9317, AP = 0.8272, f1: 0.7580
+        >>>      Class 2 (Cyc): precision = 0.7927, recall = 0.9524, AP = 0.9013, f1: 0.8652
+
+    mAP: 0.9025
+    
+    
+- [x] `Complex Yolo v3 - tiny` evaluation.
+    $ python eval_mAP.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+
+
 
 
     ---- Evaluating Model ----
