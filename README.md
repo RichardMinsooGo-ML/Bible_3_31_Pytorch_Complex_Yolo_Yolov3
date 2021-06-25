@@ -214,7 +214,8 @@ ${ROOT}
 - [x] `Complex Yolo v3` evaluation.
     $ python eval_mAP.py 
     $ python eval_mAP.py --model_def config/complex_yolov3.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3.pth --batch_size 2
-    
+
+```
     Detecting objects: 100%|███████████████████████████████████████████████████████████████████████| 741/741 [02:44<00:00,  4.51it/s]
     Computing AP: 100%|███████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 107.44it/s]
 
@@ -225,27 +226,23 @@ ${ROOT}
         >>>      Class 2 (Cyc): precision = 0.7927, recall = 0.9524, AP = 0.9013, f1: 0.8652
 
     mAP: 0.9025
-    
+``` 
     
 - [x] `Complex Yolo v3 - tiny` evaluation.
     $ python eval_mAP.py --model_def config/complex_yolov3_tiny.cfg --pretrained_path checkpoints/Complex_yolo_yolo_v3_tiny.pth --batch_size 8
+    
+```
+    Detecting objects: 100%|████████████████████████████████████████████████████████████████████████| 186/186 [01:36<00:00,  1.93it/s]
+    Computing AP: 100%|████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 103.71it/s]
 
+    Done computing mAP...
 
+        >>>      Class 0 (Car): precision = 0.8858, recall = 0.9706, AP = 0.9592, f1: 0.9263
+        >>>      Class 1 (Ped): precision = 0.4882, recall = 0.7662, AP = 0.4929, f1: 0.5964
+        >>>      Class 2 (Cyc): precision = 0.6042, recall = 0.9451, AP = 0.7875, f1: 0.7371
 
-
-    ---- Evaluating Model ----
-    Load EVAL samples from dataset\kitti\training
-    Done: total EVAL samples 1481
-    Detecting objects: 100%|███████████████████████████████████████████████████| 371/371 [02:55<00:00,  2.12it/s]
-    Computing AP: 100%|███████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 100.14it/s]
-    +-------+------------+---------+
-    | Index | Class name | AP      |
-    +-------+------------+---------+
-    | 0     | Car        | 0.97149 |
-    | 1     | Pedestrian | 0.76360 |
-    | 2     | Cyclist    | 0.90827 |
-    +-------+------------+---------+
-    ---- mAP 0.8811172497493648
+    mAP: 0.7465
+```
 
 
 ## Credit
