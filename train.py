@@ -190,7 +190,7 @@ def main():
             # ----------------
             
             # if (batch_idx+1) % len(dataloader) == 0:
-            if (batch_idx+1) % 128 == 0:
+            if (batch_idx+1) % int(len(dataloader)/3) == 0:
 
                 log_str = "\n---- [Epoch %d/%d, Batch %d/%d] ----\n" % ((epoch+1), configs.num_epochs, (batch_idx+1), len(dataloader))
 
