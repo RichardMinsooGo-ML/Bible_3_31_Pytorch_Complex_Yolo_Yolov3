@@ -102,9 +102,9 @@ def main():
         "loss_obj",
         "loss_cls",
         "cls_acc",
-        "recall50",
-        "recall75",
-        "precision",
+        # "recall50",
+        # "recall75",
+        # "precision",
         "conf_obj",
         "conf_noobj",
     ]
@@ -231,7 +231,7 @@ def main():
         print("\n---- Evaluating Model ----")
         # Evaluate the model on the validation set
         precision, recall, AP, f1, ap_class = evaluate_mAP(model, configs,
-            batch_size=4)
+            batch_size=configs.batch_size)
 
         val_metrics_dict = {
             'precision': precision.mean(),
