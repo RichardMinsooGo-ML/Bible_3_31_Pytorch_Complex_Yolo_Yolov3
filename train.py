@@ -4,16 +4,16 @@ import os, sys, time, datetime, argparse
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 import torch
-from data_process.kitti_yolo_dataset import KittiYOLODataset
-from utils.utils import *
-from models.models import *
 
 import tqdm
 from torch.utils.data import DataLoader
+from data_process.kitti_yolo_dataset import KittiYOLODataset
+from utils.utils import *
 from torch.autograd import Variable
 import torch.optim as optim
 from eval_mAP import evaluate_mAP
 
+from models.models import *
 from config.train_config import parse_train_configs
 
 def main():
@@ -23,14 +23,19 @@ def main():
     print(configs.device)
 
     # Initiate model
+    
     model = Darknet(configs.model_def, img_size=configs.img_size)
     model.apply(weights_init_normal)
-    
-    # Get data configuration
-    classes = load_classes(configs.class_path)
-    
+    # model.print_network()
     model = model.to(configs.device)
     
+    # Get data configuration
+    class_names = load_classes(configs.class_path)
+    
+    print(configs.pretrained_path)
+    
+    assert os.path.isfile(configs.pretrained_path), "No file at {}".format(configs.pretrained_path)
+
     # If specified we start from checkpoint
     if configs.pretrained_path:
         if configs.pretrained_path.endswith(".pth"):
@@ -81,22 +86,29 @@ def main():
     dataset = KittiYOLODataset(cnf.root_dir, split='train', mode='TRAIN',
         folder='training', data_aug=True, multiscale=configs.multiscale_training)
 
-    dataloader = DataLoader(dataset, configs.batch_size, shuffle=True,
-        num_workers=configs.n_cpu, pin_memory=True, collate_fn=dataset.collate_fn)
+    train_dataloader = DataLoader(
+        dataset,
+        configs.batch_size,
+        shuffle=True,
+        num_workers=configs.n_cpu,
+        pin_memory=True,
+        collate_fn=dataset.collate_fn
+    )
 
     max_mAP = 0.0
+    start_time = time.time() 
     for epoch in range(0, configs.num_epochs, 1):
-
-        num_iters_per_epoch = len(dataloader)        
+        
+        num_iters_per_epoch = len(train_dataloader)
 
         print(num_iters_per_epoch)
 
         # switch to train mode
         model.train()
-        start_time = time.time()
         
+        epoch_loss = 0
         # Training        
-        for batch_idx, batch_data in enumerate(tqdm.tqdm(dataloader)):
+        for batch_idx, batch_data in enumerate(tqdm.tqdm(train_dataloader)):
             """
             # print(batch_data)
             
@@ -123,20 +135,18 @@ def main():
             img = Image.fromarray(data)
             img.save('my_img.png')
             img.show()
-
-            import sys
-            sys.exit()
             """
             
             # data_time.update(time.time() - start_time)
             _, imgs, targets = batch_data
             global_step = num_iters_per_epoch * epoch + batch_idx + 1
             
-            imgs = Variable(imgs.to(configs.device))
             targets = Variable(targets.to(configs.device), requires_grad=False)
+            imgs = Variable(imgs.to(configs.device))
 
             total_loss, outputs = model(imgs, targets)
             
+            epoch_loss += float(total_loss.item())
             # compute gradient and perform backpropagation
             total_loss.backward()
 
@@ -151,13 +161,10 @@ def main():
 
             # ----------------
             #   Log progress
-
             # ----------------
-            
-            # if (batch_idx+1) % len(dataloader) == 0:
-            if (batch_idx+1) % int(len(dataloader)/3) == 0:
+            if (batch_idx+1) % int(len(train_dataloader)/3) == 0:
 
-                log_str = "\n---- [Epoch %d/%d, Batch %d/%d] ----\n" % ((epoch+1), configs.num_epochs, (batch_idx+1), len(dataloader))
+                log_str = "\n---- [Epoch %d/%d, Batch %d/%d] ----\n" % ((epoch+1), configs.num_epochs, (batch_idx+1), len(train_dataloader))
 
                 metric_table = [["Metrics", *[f"YOLO Layer {i}" for i in range(len(model.yolo_layers))]]]
 
@@ -182,90 +189,51 @@ def main():
                 log_str += f"\nTotal loss {total_loss.item()}"
 
                 # Determine approximate time left for epoch
-                epoch_batches_left = len(dataloader) - (batch_idx + 1)
+                epoch_batches_left = len(train_dataloader) - (batch_idx + 1)
                 time_left = datetime.timedelta(seconds=epoch_batches_left * (time.time() - start_time) / (batch_idx + 1))
                 log_str += f"\n---- ETA {time_left}"
 
                 print(log_str)
 
-            model.seen += imgs.size(0)
-
-        # Evaulation        
-        #-------------------------------------------------------------------------------------
+            # model.seen += imgs.size(0)
+        crnt_epoch_loss = epoch_loss/num_iters_per_epoch
         
-        print("\n---- Evaluating Model ----")
-        # Evaluate the model on the validation set
-        precision, recall, AP, f1, ap_class = evaluate_mAP(model, configs,
-            batch_size=configs.batch_size)
+        torch.save(model.state_dict(), configs.save_path)
+        # global_epoch += 1
+        
+        # print("Global_epoch :",global_epoch, "Current epoch loss : {:1.5f}".format(crnt_epoch_loss),'Saved at {}'.format(configs.save_path))
+        print("Current epoch loss : {:1.5f}".format(crnt_epoch_loss),'Saved at {}'.format(configs.save_path))
+        
+    # Evaulation
+    print("\n---- Evaluating Model ----")
+    # Evaluate the model on the validation set
+    precision, recall, AP, f1, ap_class = evaluate_mAP(model, configs,
+        batch_size=configs.batch_size)
 
-        val_metrics_dict = {
-            'precision': precision.mean(),
-            'recall': recall.mean(),
-            'AP': AP.mean(),
-            'f1': f1.mean(),
-            'ap_class': ap_class.mean()
-        }
+    val_metrics_dict = {
+        'precision': precision.mean(),
+        'recall': recall.mean(),
+        'AP': AP.mean(),
+        'f1': f1.mean(),
+        'ap_class': ap_class.mean()
+    }
 
-        # Print class APs and mAP
-        ap_table = [["Index", "Class name", "AP"]]
-        for i, c in enumerate(ap_class):
-            ap_table += [[c, classes[c], "%.5f" % AP[i]]]
-        print(AsciiTable(ap_table).table)
-        print(f"---- mAP {AP.mean()}")
+    # Print class APs and mAP
+    ap_table = [["Index", "Class name", "AP"]]
+    for i, c in enumerate(ap_class):
+        ap_table += [[c, class_names[c], "%.5f" % AP[i]]]
+    print(AsciiTable(ap_table).table)
+    print(f"---- mAP {AP.mean()}")
 
-        max_mAP = AP.mean()
-        #-------------------------------------------------------------------------------------
-        # Save checkpoint
-        if (epoch+1) % configs.checkpoint_freq == 0:
-            torch.save(model.state_dict(), configs.save_path)
-            print('save a checkpoint at {}'.format(configs.save_path))
-            
+    max_mAP = AP.mean()
+    #-------------------------------------------------------------------------------------
+    """
+    # Save checkpoint
+    if (epoch+1) % configs.checkpoint_freq == 0:
+        torch.save(model.state_dict(), configs.save_path)
+        print('save a checkpoint at {}'.format(configs.save_path))
+    """
             
 if __name__ == '__main__':
     main()
-    
-"""
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("--pretrained_path", type=str, default="checkpoints/yolov3_ckpt_epoch-298.pth", help="if specified starts from checkpoint model")
-    # parser.add_argument("--pretrained_path", type=str, default="checkpoints/Complex_yolo_V3.pth", help="if specified starts from checkpoint model")
-    
-    parser.add_argument("--model_def", type=str, default="config/complex_yolov3.cfg", help="path to model definition file")
-    
-    parser.add_argument("--pretrained_path", type=str, default="checkpoints/Complex_yolo_yolo_v3.pth", help="if specified starts from checkpoint model")
-    parser.add_argument("--save_path", type=str, default="checkpoints/Complex_yolo_yolo_v3.pth", help="if specified starts from checkpoint model")
-    parser.add_argument("--class_path", type=str,   default="dataset/classes.names", help="path to class label file")
-    
-    parser.add_argument("--num_epochs"  , type=int, default=2, help="number of epochs")
-    parser.add_argument("--batch_size"  , type=int, default=2, help="size of each image batch")
-    
-    parser.add_argument("--gradient_accumulations", type=int, default=2, help="number of gradient accums before step")
-    parser.add_argument("--img_size", type=int, default=cnf.BEV_WIDTH, help="size of each image dimension")
-    parser.add_argument("--n_cpu", type=int, default=1, help="number of cpu threads to use during batch generation")
-    parser.add_argument("--evaluation_interval", type=int, default=2, help="interval evaluations on validation set")
-    parser.add_argument("--multiscale_training", default=True, help="allow for multi-scale training")
-    parser.add_argument("--checkpoint_freq", type=int, default=2, metavar='N', help='frequency of saving checkpoints (default: 2)')
-    
-    configs = parser.parse_args()
-    print(configs)
-
-    configs.iou_thres  = 0.5
-    configs.conf_thres = 0.5
-    configs.nms_thres  = 0.5
-                
-    ############## Dataset, logs, Checkpoints dir ######################
-    
-    configs.dataset_dir = os.path.join('dataset', 'kitti')
-    configs.ckpt_dir    = 'checkpoints'
-    configs.logs_dir    = 'logs'
-
-    if not os.path.isdir(configs.ckpt_dir):
-        os.makedirs(configs.ckpt_dir)
-    if not os.path.isdir(configs.logs_dir):
-        os.makedirs(configs.logs_dir)
-
-    ############## Hardware configurations #############################    
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-"""
-
-
     
